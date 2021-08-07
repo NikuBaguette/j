@@ -1,0 +1,47 @@
+repeat wait() until game.Loaded
+wait(3)
+
+unit_to_place = "Gilgamesh"
+local plr = game.Players.LocalPlayer
+local wave = game:GetService("Players")[plr.Name].PlayerGui.HUD.Wave
+local mode = game:GetService("Players")[plr.Name].PlayerGui.HUD.ModeVoteFrame
+local wave1 = 0
+local money = game:GetService("Players")[plr.Name].Money
+local tower = game.Workspace:FindFirstChild("TowerHP")
+local remote = game.ReplicatedStorage.Remotes.Input
+local troupe
+
+game:GetService("Workspace").Unit.ChildAdded:Connect(function(x)
+    wait(.1)
+    if x.Name == unit_to_place and x.Owner.Value == plr then
+        troupe = x
+    end
+end)
+
+if game.PlaceId == 4996049426 and game.Workspace:FindFirstChild'Queue' then
+    print("Lobby")
+else
+    print("en game")
+    wave.Changed:Connect(function()
+        wave1 = wave1 + 1
+        if wave1 == 1 then
+            local args = {
+                [1] = "Summon",
+                [2] = {
+                    ["Rotation"] = 0,
+                    ["cframe"] = CFrame.new(-122.879669, 5.47768021, -6.17337608, -0.639985323, 0, -0.768387079, 0, 1, 0, 0.768387079, 0, -0.639985323),
+                    ["Unit"] = unit_to_place
+                }
+            }
+            game:GetService("ReplicatedStorage").Remotes.Input:FireServer(unpack(args))
+        end
+        if wave.Text == "Wave 10" then
+            remote:FireServer("Sell", troupe)
+        end
+    end)
+    money.Changed:Connect(function()
+        if wave1 <= 9 then
+            remote:FireServer("Upgrade", troupe)
+        end
+    end)
+end
